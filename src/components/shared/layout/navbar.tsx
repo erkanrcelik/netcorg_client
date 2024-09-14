@@ -7,9 +7,11 @@ import CustomBreadCrumb from "@/components/shared/layout/breadcrumb";
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useRouter} from 'next/navigation';
+import {useEffect} from "react";
+import {toast} from "react-toastify";
 
 const validationSchema = Yup.object({
-  filter: Yup.string().required('Please select a filter'),
+  filter: Yup.string().required('Please select a filter type'),
   searchTerm: Yup.string().required('Please enter a search term'),
 });
 
@@ -27,6 +29,11 @@ export function Navbar() {
     },
   });
 
+  useEffect(() => {
+    if (formik.errors.filter && formik.touched.filter) {
+      toast.error(formik.errors.filter);
+    }
+  }, [formik.errors, formik.touched]);
 
   return (
     <header
