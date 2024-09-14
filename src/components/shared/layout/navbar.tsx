@@ -7,7 +7,6 @@ import CustomBreadCrumb from "@/components/shared/layout/breadcrumb";
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
 import {useRouter} from 'next/navigation';
-import {useToast} from "@/hooks/use-toast";
 
 const validationSchema = Yup.object({
   filter: Yup.string().required('Please select a filter'),
@@ -15,7 +14,6 @@ const validationSchema = Yup.object({
 });
 
 export function Navbar() {
-  const { toast } = useToast()
   const router = useRouter();
   const formik = useFormik({
     initialValues: {
@@ -31,11 +29,12 @@ export function Navbar() {
 
 
   return (
-    <header className="sticky top-0 z-10 w-full bg-background/95 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary">
+    <header
+      className="sticky top-0 z-10 w-full bg-background/95 shadow backdrop-blur supports-[backdrop-filter]:bg-background/60 dark:shadow-secondary">
       <div className="mx-4 sm:mx-8 flex h-14 items-center justify-between">
         <div className="flex items-center space-x-4 lg:space-x-0 w-full">
-          <SheetMenu />
-          <CustomBreadCrumb />
+          <SheetMenu/>
+          <CustomBreadCrumb/>
           <form onSubmit={formik.handleSubmit} className="flex flex-grow px-4 space-x-2">
             <div>
               <Select
@@ -44,7 +43,7 @@ export function Navbar() {
                 onValueChange={(value) => formik.setFieldValue('filter', value)}
               >
                 <SelectTrigger className="w-[180px]">
-                  <SelectValue placeholder="Select Search Type" />
+                  <SelectValue placeholder="Select Search Type"/>
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="process_name">Process Name</SelectItem>
@@ -69,7 +68,7 @@ export function Navbar() {
           </form>
         </div>
         <div className="flex items-center space-x-4">
-          <ModeToggle />
+          <ModeToggle/>
         </div>
       </div>
     </header>
