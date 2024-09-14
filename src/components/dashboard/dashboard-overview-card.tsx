@@ -12,11 +12,12 @@ export interface DashboardOverviewCardProps {
   title?: string;
   categoryName?: string;
   categoryIcon?: string;
+  active?: boolean;
   onClick?: () => void;
 }
 
 const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
-  const {appName, onClick, cardTitle, appIcon, pName, duration, title, categoryName, categoryIcon} = props;
+  const {appName, onClick,active, cardTitle, appIcon, pName, duration, title, categoryName, categoryIcon} = props;
 
   // Metinlerin kısaltılması için yardımcı fonksiyon
   const truncateText = (text: string | undefined, maxLength: number) => {
@@ -24,28 +25,26 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
   };
 
   return (
-    <Card onClick={onClick} className="cursor-pointer">
+    <Card
+      onClick={onClick}
+      className={`cursor-pointer ${active && 'bg-primary'}`} // Dynamically apply the primary color if active
+    >
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-bold">
+        <CardTitle className={`text-sm font-bold ${active && 'text-black'}`}>
           {cardTitle}
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex space-x-2 items-center">
-
-          {/* Uygulama Iconu */}
           {appIcon && <img src={appIcon} width={25} height={20}/>}
           {categoryIcon && <img src={categoryIcon} width={25} height={20}/>}
-
-          {/* İçerik Sıralaması */}
           <div className="flex flex-col space-y-1">
-            {/* Her bir alanın tooltip ile truncate edilmiş versiyonu */}
             <TooltipProvider delayDuration={100}>
               {title && (
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span
-                      className="truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px]">{truncateText(title, 50)}</span>
+                      className={`truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px] ${active && 'text-black'}`}>{truncateText(title, 50)}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{title}</p>
@@ -56,7 +55,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span
-                      className="truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px]">{truncateText(appName, 50)}</span>
+                      className={`truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px] ${active && 'text-black'}`}>{truncateText(appName, 50)}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{appName}</p>
@@ -67,7 +66,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
                 <Tooltip delayDuration={100}>
                   <TooltipTrigger asChild>
                     <span
-                      className="truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px]">{truncateText(pName, 50)}</span>
+                      className={`truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px] ${active && 'text-black'}`}>{truncateText(pName, 50)}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{pName}</p>
@@ -78,7 +77,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span
-                      className="truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px]">{truncateText(categoryName, 50)}</span>
+                      className={`truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px] ${active && 'text-black'}`}>{truncateText(categoryName, 50)}</span>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>{categoryName}</p>
@@ -87,7 +86,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
               )}
             </TooltipProvider>
 
-            {duration && <span>{duration}</span>}
+            {duration && <span className={`truncate max-w-[270px] lg:max-w-[400px] md:max-w-[350px] ${active && 'text-black'}`}>{duration}</span>}
           </div>
         </div>
       </CardContent>

@@ -52,16 +52,16 @@ const data: DashboardOverviewCardProps[] = [
 ]
 
 const SummaryTab = () => {
-  const [value, setValue] = React.useState("summary");
+  const [value, setValue] = React.useState(data[0].cardName);
   console.log(value)
   return (
     <TabsContent value="summary" className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
         {data.map((item, index) => (
-          <DashboardOverviewCard onClick={() => setValue(item.cardName)} key={index} {...item} />
+          <DashboardOverviewCard onClick={() => setValue(item.cardName)} key={index} {...item} active={item.cardName === value}  />
         ))}
       </div>
-      <SummaryTabContent/>
+      <SummaryTabContent title={value}/>
     </TabsContent>
   );
 };

@@ -4,11 +4,16 @@ import {RecentSales} from "@/components/recent-sales";
 import {PieGraph} from "@/components/custom/charts/pie-graph";
 import {Separator} from "@/components/ui/separator";
 
-const SummaryTabContent = () => {
+interface SummaryTabContentProps {
+  title?: string;
+}
+
+const SummaryTabContent = (props:SummaryTabContentProps) => {
+  const {title} = props;
   return (
     <Card className="p-0">
       <CardHeader className="border-b">
-        <CardTitle>Active Process</CardTitle>
+        <CardTitle>{title}</CardTitle>
         <CardDescription>
           Showing all data for the Jan 20, 2023 - Feb 09, 2023
         </CardDescription>
