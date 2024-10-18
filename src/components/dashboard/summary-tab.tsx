@@ -1,80 +1,188 @@
 "use client";
-import React from "react";
-import { TabsContent } from "@/components/ui/tabs";
-import DashboardOverviewCard, {
-  DashboardOverviewCardProps,
-} from "@/components/dashboard/dashboard-overview-card";
+import React, {useEffect, useState} from 'react';
+import {TabsContent} from "@/components/ui/tabs";
 import SummaryTabContent from "@/components/dashboard/summary-tab-content";
-
-const data: DashboardOverviewCardProps[] = [
-  {
-    cardName: "active_process",
-    cardTitle: "Active Procces",
-    appName: "Google Chromeasdasdasdsaadsdasdasasddsasdasdasasdasdasdasas",
-    appIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    pName: "Google Chrome",
-    duration: "1h 30m",
-  },
-  {
-    cardName: "app_list",
-    cardTitle: "App List",
-    appName: "Spotify",
-    appIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    duration: "1h 30m",
-  },
-  {
-    cardName: "title",
-    cardTitle: "Title",
-    title: "Title",
-    appName: "Spotify",
-    appIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    duration: "1h 30m",
-  },
-  {
-    cardName: "browser_title",
-    cardTitle: "Browser Title",
-    title: "Title",
-    appName: "Spotify",
-    appIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    duration: "1h 30m",
-  },
-  {
-    cardName: "categories",
-    cardTitle: "Categories",
-    categoryName: "Social Media",
-    categoryIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    duration: "1h 30m",
-  },
-  {
-    cardName: "asdjads",
-    cardTitle: "ASDASJASDAS",
-    categoryName: "Social Media",
-    categoryIcon:
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png",
-    duration: "1h 30m",
-  },
-];
+import DashboardOverviewCard from "@/components/dashboard/dashboard-overview-card";
+import {useActiveProcess} from "@/services/api/active";
+import {useDate} from "@/hooks/use-date";
+import {dateToEpoch} from "@/utils/time";
+import {useTopProcess} from "@/services/api/top-process";
+import {ProcessRequest, SummaryTabItem, summaryTabItems} from "@/services/types/process";
+import {useProcess} from "@/services/api/process";
 
 const SummaryTab = () => {
-  const [value, setValue] = React.useState(data[0].cardName);
+  const { date } = useDate();
+  const initialProcessFilters: ProcessRequest = {
+    limit: 10,
+    offset: 0,
+    date: dateToEpoch(date),
+    isActive: true
+  };
+  const [selectedTab, setSelectedTab] = useState<SummaryTabItem>(summaryTabItems[0]);
+  const [activeProcessFilters, setActiveProcessFilters] = useState(dateToEpoch(date));
+  const [processFilters, setProcessFilters] = useState<ProcessRequest>(initialProcessFilters);
+  const [topProcessFilters, setTopProcessFilters] = useState(dateToEpoch(date));
+  const [isFailure, setIsFailure] = useState<boolean>(false);
+  const onErrorFetch = () => setIsFailure(true);
+
+  const {
+    data: activeProcessData,
+    refetch: activeProcessRefetch,
+    isLoading: activeProcessIsLoading,
+  } = useActiveProcess(
+    activeProcessFilters,
+    selectedTab.name === 'top_active_process',
+    onErrorFetch
+  );
+
+  const {
+    data: topProcessData,
+    refetch: topProcessRefetch,
+    isLoading: topProcessIsLoading,
+  } = useTopProcess(
+    topProcessFilters,
+    selectedTab.name === 'top_app_list',
+    onErrorFetch
+  );
+
+  const {
+    data: processData,
+    refetch: processRefetch,
+    isLoading: processIsLoading,
+  } = useProcess(
+    processFilters,
+    onErrorFetch
+  );
+
+  useEffect(() => {
+    setActiveProcessFilters(dateToEpoch(date));
+    setTopProcessFilters(dateToEpoch(date));
+    setProcessFilters({
+      ...processFilters,
+      date: dateToEpoch(date)
+    });
+  }, [date]);
+
+  useEffect(() => {
+    processRefetch();
+  }, [processFilters, processRefetch]);
+
+  useEffect(() => {
+    topProcessRefetch();
+  }, [topProcessFilters, topProcessRefetch]);
+
+  useEffect(() => {
+    activeProcessRefetch();
+  }, [activeProcessFilters, activeProcessRefetch]);
+
+  const handleCardClick = (tab: SummaryTabItem) => {
+    setSelectedTab(tab);
+    if (tab.name === 'top_active_process') {
+      setProcessFilters({
+        ...processFilters,
+        offset: 0,
+        isActive: true,
+      });
+    } else {
+      setProcessFilters({
+        ...processFilters,
+        offset: 0,
+        isActive: false,
+      });
+    }
+    processRefetch();
+  };
+
+  const cardsData = [
+    {
+      key: summaryTabItems[0].name,
+      data: activeProcessData,
+      isLoading: activeProcessIsLoading,
+      title: summaryTabItems[0].title,
+      showCard: !!activeProcessData?.aname || activeProcessIsLoading,
+      emptyMessage: false
+    },
+    {
+      key: summaryTabItems[1].name,
+      data: topProcessData,
+      isLoading: topProcessIsLoading,
+      title: summaryTabItems[1].title,
+      showCard: !!topProcessData || topProcessIsLoading,
+      emptyMessage: !!topProcessData || topProcessIsLoading
+    },
+    {
+      key: summaryTabItems[2].name,
+      data: topProcessData,
+      isLoading: topProcessIsLoading,
+      showCard: !!topProcessData || topProcessIsLoading,
+      title: summaryTabItems[2].title,
+      emptyMessage: !!topProcessData || topProcessIsLoading
+    }
+  ];
+
+  const [duration, setDuration] = useState<number>(0);
+  const [isFinished, setIsFinished] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (activeProcessData?.end_time) {
+      setIsFinished(true);
+    }
+
+    // Set initial duration based on activeProcessData
+    if (activeProcessData?.start_time) {
+      const initialDuration = Math.floor((Date.now() / 1000) - activeProcessData.start_time);
+      setDuration(initialDuration);
+    }
+  }, [activeProcessData]);
+
+  useEffect(() => {
+    if (!isFinished) {
+      const intervalId = setInterval(() => {
+        const elapsedTime = Math.floor((Date.now() / 1000) - activeProcessData.start_time);
+        setDuration(elapsedTime);
+        activeProcessRefetch();
+      }, 5000);
+
+      return () => clearInterval(intervalId);
+    }
+  }, [isFinished, activeProcessData, activeProcessRefetch]);
+
+  const filteredCardsData = cardsData.filter(card =>
+    card.key !== summaryTabItems[0].name || card.showCard
+  );
+
   return (
     <TabsContent value="summary" className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-        {data.map((item, index) => (
-          <DashboardOverviewCard
-            onClick={() => setValue(item.cardName)}
-            key={index}
-            {...item}
-            active={item.cardName === value}
-          />
-        ))}
+        {filteredCardsData.map(card => {
+          const tabItem = summaryTabItems.find(item => item.name === card.key);
+          return tabItem ? (
+            <DashboardOverviewCard
+              key={card.key}
+              onClick={() => handleCardClick(tabItem)}
+              cardName={card.key}
+              cardTitle={card.title}
+              active={selectedTab.name === card.key}
+              isLoading={card.isLoading}
+              appName={card.data?.aname}
+              pName={card.data?.pname}
+              duration={tabItem.name === 'top_active_process' ? duration : card.data?.totalDuration}
+              appIcon="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png"
+            />
+          ) : null;
+        })}
       </div>
-      <SummaryTabContent title={value} />
+      <SummaryTabContent
+        title={selectedTab.title}
+        items={processData?.items}
+        offset={processData?.offset}
+        total={processData?.total}
+        name={selectedTab.name}
+        limit={processData?.limit}
+        isLoading={processIsLoading}
+        processFilters={processFilters}
+        setProcessFilters={setProcessFilters}
+      />
     </TabsContent>
   );
 };

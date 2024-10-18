@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import {useFormik} from 'formik';
 import * as Yup from 'yup';
 import {ModeToggle} from "@/components/shared/mode-toggle";
@@ -6,8 +6,8 @@ import {SheetMenu} from "@/components/shared/layout/sheet-menu";
 import CustomBreadCrumb from "@/components/shared/layout/breadcrumb";
 import {Input} from "@/components/ui/input";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select";
-import {useRouter} from 'next/navigation';
-import {useEffect} from "react";
+import {useRouter, useSearchParams} from 'next/navigation';
+import React, {useEffect} from "react";
 import {toast} from "react-toastify";
 
 const validationSchema = Yup.object({
@@ -17,23 +17,32 @@ const validationSchema = Yup.object({
 
 export function Navbar() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+
   const formik = useFormik({
     initialValues: {
-      filter: '',
-      searchTerm: '',
+      filter: searchParams.get('filter') || '',
+      searchTerm: searchParams.get('searchTerm') || '',
     },
     validationSchema,
     onSubmit: (values) => {
-      // Redirect to the search results page
-      router.push(`/search?query=${encodeURIComponent(values.searchTerm)}`);
+      const query = new URLSearchParams({
+        searchTerm: values.searchTerm,
+        filter: values.filter,
+      }).toString();
+      router.push(`/search?${query}`);
     },
   });
 
   useEffect(() => {
-    if (formik.errors.filter && formik.touched.filter) {
+    if (formik.errors.filter && formik.errors.searchTerm) {
       toast.error(formik.errors.filter);
     }
-  }, [formik.errors, formik.touched]);
+  }, [formik.errors]);
+
+  const handleFilterChange = (value: string) => {
+    formik.setFieldValue('filter', value);
+  }
 
   return (
     <header
@@ -46,15 +55,16 @@ export function Navbar() {
             <div>
               <Select
                 name="filter"
+                defaultValue={searchParams.get('filter') || ''}
                 value={formik.values.filter}
-                onValueChange={(value) => formik.setFieldValue('filter', value)}
+                onValueChange={handleFilterChange}
               >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Select Search Type"/>
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="process_name">Process Name</SelectItem>
-                  <SelectItem value="application_name">Application Name</SelectItem>
+                  <SelectItem value="pname">Process Name</SelectItem>
+                  <SelectItem value="aname">Application Name</SelectItem>
                   <SelectItem value="title">Title</SelectItem>
                 </SelectContent>
               </Select>

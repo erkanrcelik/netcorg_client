@@ -1,13 +1,13 @@
-import { addDays } from "date-fns";
-import { DateRange } from "react-day-picker";
-import { create } from "zustand";
+import {create} from "zustand";
 
 interface useDateStore {
-  date: DateRange;
-  setDate: (date: DateRange | undefined) => void;
+  date: Date; // Date nesnesi olarak saklıyoruz
+  setDate: (date: Date) => void; // Tarih ayarlamak için fonksiyon
 }
 
 export const useDate = create<useDateStore>((set) => ({
-  date: { from: new Date(2023, 0, 20), to: addDays(new Date(2023, 0, 20), 20) },
-  setDate: (date) => set({ date }),
+  date: new Date(), // Başlangıçta bugünün tarihi
+  setDate: (date) => {
+    set({ date }); // Gelen Date nesnesini doğrudan ayarlıyoruz
+  },
 }));
