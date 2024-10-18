@@ -15,22 +15,9 @@ interface ProcessListProps {
 }
 
 export function ProcessList(props: ProcessListProps) {
-  const { items, total, name, offset, limit, onPageChange } = props;
+  const {items, total, name, offset, limit, onPageChange} = props;
+  const [page, setPage] = useState(0);
 
-  const totalPages = Math.ceil(total / limit);
-  const currentPage = Math.floor(offset / limit) + 1;
-
-  const handlePrevPage = () => {
-    if (currentPage > 1) {
-      onPageChange(offset - limit);
-    }
-  };
-
-  const handleNextPage = () => {
-    if (currentPage < totalPages) {
-      onPageChange(offset + limit);
-    }
-  };
 
   const [durations, setDurations] = useState<Record<string, number>>({});
   const [finishedStates, setFinishedStates] = useState<Record<string, boolean>>({});
@@ -55,7 +42,7 @@ export function ProcessList(props: ProcessListProps) {
   useEffect(() => {
     const intervalId = setInterval(() => {
       setDurations((prevDurations) => {
-        const updatedDurations = { ...prevDurations };
+        const updatedDurations = {...prevDurations};
 
         items.forEach((item) => {
           if (!finishedStates[item.uuid]) {
@@ -83,37 +70,51 @@ export function ProcessList(props: ProcessListProps) {
       {
         label: "App Icon",
         key: "appIcon",
-        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon" />
+        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon"/>
       },
-      { label: "Aname", key: "aname" },
-      { label: "Pname", key: "pname" },
-      { label: "Duration", key: "totalDuration", render: (item) => formatDuration(durations[item.uuid] || 0) }
+      {label: "Application Name", key: "aname"},
+      {label: "Process Name", key: "pname"},
+      {label: "Duration", key: "totalDuration", render: (item) => formatDuration(durations[item.uuid] || 0)}
     ],
     [SummaryTabEnum.TopAppList]: [
       {
         label: "App Icon",
         key: "appIcon",
-        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon" />
+        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon"/>
       },
-      { label: "Aname", key: "aname" },
-      { label: "Pname", key: "pname" },
-      { label: "Total Duration", key: "totalDuration", render: (item) => formatDuration(item.totalDuration) }
+      {label: "Application Name", key: "aname"},
+      {label: "Process Name", key: "pname"},
+      {label: "Total Duration", key: "totalDuration", render: (item) => formatDuration(item.totalDuration)}
     ],
     [SummaryTabEnum.TopTitle]: [
       {
         label: "App Icon",
         key: "appIcon",
-        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon" />
+        render: (item) => <img src={item.appIcon} width={25} height={20} alt="App Icon"/>
       },
-      { label: "Title", key: "title" },
-      { label: "Aname", key: "aname" },
-      { label: "Total Duration", key: "totalDuration", render: (item) => formatDuration(item.totalDuration) }
+      {label: "Title", key: "title"},
+      {label: "Application Name", key: "aname"},
+      {label: "Total Duration", key: "totalDuration", render: (item) => formatDuration(item.totalDuration)}
     ]
   };
 
   const getColumnConfig = (tab: SummaryTabEnum): ColumnConfig[] => columnConfig[tab] || [];
 
   const columns = getColumnConfig(name as SummaryTabEnum); // Get columns based on selected tab
+
+  const handlePrevPage = () => {
+    if (page > 0) {
+      onPageChange(page - 1);
+      setPage(page - 1)
+    }
+  };
+
+  const handleNextPage = () => {
+    if (page < total) {
+      onPageChange(page + 1);
+      setPage(page + 1)
+    }
+  };
 
   return (
     <div className="flex flex-col">
@@ -128,39 +129,53 @@ export function ProcessList(props: ProcessListProps) {
         </tr>
         </thead>
         <tbody>
-        {items && items.map((item) => (
-          <tr key={item.uuid} className="border-b">
-            {columns.map((column) => (
-              <td key={column.key} className="py-2 px-4">
-                {column.render ? column.render(item) : item[column.key]}
-              </td>
-            ))}
-          </tr>
-        ))}
+        {items?.length > 0 ? items.map((item) => (
+            <tr key={item.uuid} className="border-b">
+              {columns.map((column) => (
+                <td key={column.key} className="py-2 px-4">
+                  {column.render ? column.render(item) : item[column.key]}
+                </td>
+              ))}
+            </tr>
+          ))
+          : (
+            <>
+              <tr>
+                <td colSpan={columns.length} className="py-2 px-4 text-center">
+                  No data available
+                </td>
+              </tr>
+            </>
+          )
+        }
         </tbody>
       </table>
 
-      <div className="flex justify-between mt-4">
-        <Button
-          onClick={handlePrevPage}
-          disabled={currentPage === 1}
-          size={"sm"}
-          className={`px-4 py-2 rounded ${currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <Icons.chevronLeft color="white" size={15} />
-        </Button>
-        <span>
-          Page {currentPage} of {totalPages}
+      {
+        items?.length > 0 && (
+          <div className="flex justify-between mt-4">
+            <Button
+              onClick={handlePrevPage}
+              disabled={page === 0}
+              size={"sm"}
+              className={`px-4 py-2 rounded ${page === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Icons.chevronLeft color="white" size={15}/>
+            </Button>
+            <span>
+          Page {page + 1} of {total}
         </span>
-        <Button
-          onClick={handleNextPage}
-          size={"sm"}
-          disabled={currentPage === totalPages}
-          className={`px-4 py-2 rounded ${currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''}`}
-        >
-          <Icons.chevronRight color="white" size={15} />
-        </Button>
-      </div>
+            <Button
+              onClick={handleNextPage}
+              size={"sm"}
+              disabled={page === total}
+              className={`px-4 py-2 rounded ${page === total ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              <Icons.chevronRight color="white" size={15}/>
+            </Button>
+          </div>
+        )
+      }
     </div>
   );
 }

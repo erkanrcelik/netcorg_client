@@ -9,7 +9,7 @@ export interface DashboardOverviewCardProps {
   cardName: string;
   cardTitle?: string;
   appName?: string;
-  appIcon?: string;
+  appIcon?: string | null;
   pName?: string;
   duration?: number;
   title?: string;

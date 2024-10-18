@@ -11,9 +11,9 @@ import {ProcessRequest, SummaryTabItem, summaryTabItems} from "@/services/types/
 import {useProcess} from "@/services/api/process";
 
 const SummaryTab = () => {
-  const { date } = useDate();
+  const {date} = useDate();
   const initialProcessFilters: ProcessRequest = {
-    limit: 10,
+    limit: 7,
     offset: 0,
     date: dateToEpoch(date),
     isActive: true
@@ -54,6 +54,8 @@ const SummaryTab = () => {
     onErrorFetch
   );
 
+  console.log(processData)
+
   useEffect(() => {
     setActiveProcessFilters(dateToEpoch(date));
     setTopProcessFilters(dateToEpoch(date));
@@ -78,17 +80,9 @@ const SummaryTab = () => {
   const handleCardClick = (tab: SummaryTabItem) => {
     setSelectedTab(tab);
     if (tab.name === 'top_active_process') {
-      setProcessFilters({
-        ...processFilters,
-        offset: 0,
-        isActive: true,
-      });
+      setProcessFilters(initialProcessFilters);
     } else {
-      setProcessFilters({
-        ...processFilters,
-        offset: 0,
-        isActive: false,
-      });
+      setProcessFilters({...initialProcessFilters, isActive: false});
     }
     processRefetch();
   };
@@ -167,7 +161,7 @@ const SummaryTab = () => {
               appName={card.data?.aname}
               pName={card.data?.pname}
               duration={tabItem.name === 'top_active_process' ? duration : card.data?.totalDuration}
-              appIcon="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png"
+              appIcon={card.showCard && topProcessData ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png' : null}
             />
           ) : null;
         })}

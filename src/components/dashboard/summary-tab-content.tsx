@@ -35,7 +35,7 @@ const SummaryTabContent = (props: SummaryTabContentProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <div className="md:flex space-x-4 max-h-[46.5vh]">
+        <div className="md:flex space-x-4 max-h-[50vh]">
           <div className="flex-grow p-4 overflow-auto">
             <ProcessList
               items={items}
