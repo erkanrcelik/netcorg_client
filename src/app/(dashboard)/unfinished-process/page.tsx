@@ -1,14 +1,10 @@
 "use client";
-
-import * as React from "react";
-import {useEffect, useState} from "react";
-import {ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable} from "@tanstack/react-table";
-import {Button} from "@/components/ui/button";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
-import {useSearchParams} from "next/navigation";
-import {SearchProcessRequest} from "@/services/types/search";
-import {useSearchProcess} from "@/services/api/search";
+import React, {useEffect, useState} from "react";
+import {ColumnDef, flexRender, getCoreRowModel, getPaginationRowModel, useReactTable,} from "@tanstack/react-table";
 import {epochToDate, formatDuration} from "@/utils/time";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table";
+import {Button} from "@/components/ui/button";
+import {useUnfinishedProcess} from "@/services/api/unfinished";
 
 interface DataType {
   aname: string;
@@ -19,43 +15,17 @@ interface DataType {
   end_time: string;
 }
 
+const Page = () => {
 
-export function DataTableDemo() {
-  const searchParams = useSearchParams();
-
-  const filter = searchParams.get("filter");
-  const searchTerm = searchParams.get("searchTerm");
-
-  const initialFilters: SearchProcessRequest = {
-    limit: 10,
-    offset: 0,
-    aname: filter === 'aname' ? searchTerm : undefined,
-    pname: filter === 'pname' ? searchTerm : undefined,
-    title: filter === 'title' ? searchTerm : undefined,
-  };
-
-  useEffect(
-    () => {
-      const filter = searchParams.get('filter');
-      const searchTerm = searchParams.get('searchTerm');
-      setFilters({
-        ...filters,
-        aname: filter === 'aname' ? searchTerm : undefined,
-        pname: filter === 'pname' ? searchTerm : undefined,
-        title: filter === 'title' ? searchTerm : undefined,
-      });
-      refetch()
-    },
-    [searchParams]
-  )
-
-
-  const [filters, setFilters] = React.useState<SearchProcessRequest>(initialFilters)
   const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
-  const {data: fetchedData, isLoading, refetch} = useSearchProcess({...filters, offset: pagination.pageIndex, limit: pagination.pageSize});
+
+  const {data: fetchedData, isLoading, refetch:isRefetch} = useUnfinishedProcess({
+    offset: pagination.pageIndex,
+    limit: pagination.pageSize
+  });
 
   const columns: ColumnDef<DataType>[] = [
     {
@@ -73,28 +43,27 @@ export function DataTableDemo() {
     {
       accessorKey: "start_time",
       header: "Start Date",
-      cell: ({ row }) => {
+      cell: ({row}) => {
         const start_time = row.original.start_time;
-        return epochToDate(parseInt(start_time))
+        return epochToDate(parseInt(start_time));
       },
     },
     {
       accessorKey: "end_time",
       header: "End Date",
-      cell: ({ row }) => {
+      cell: ({row}) => {
         const endTime = row.original.end_time;
-        return endTime ? epochToDate(parseInt(endTime)) : <span className="text-green-400">Active Process</span>;
+        return endTime ? epochToDate(parseInt(endTime)) : <span className="text-red-500">Unfinished Process</span>;
       },
     },
     {
       accessorKey: "totalDuration",
       header: "Duration (s)",
-      cell: ({ row }) => {
+      cell: ({row}) => {
         const duration = parseInt(row.original.totalDuration);
-        return duration ? formatDuration(duration) : <span className="text-green-400">Active Process</span>;
+        return duration ? formatDuration(duration) : <span className="text-red-500">Unfinished Process</span>;
       },
     },
-
   ];
 
   const table = useReactTable({
@@ -107,8 +76,12 @@ export function DataTableDemo() {
     state: {
       pagination
     },
-    pageCount: Math.ceil((fetchedData?.total) / fetchedData?.limit)
+    pageCount: fetchedData?.total / fetchedData?.limit || 0,
   });
+
+  useEffect(() => {
+    isRefetch()
+  }, [pagination]);
 
   if (isLoading) {
     return <div>Loading...</div>;
@@ -116,6 +89,9 @@ export function DataTableDemo() {
 
   return (
     <div className="w-full">
+      <h2 className="text-lg font-semibold mb-4">
+        This page displays unfinished processes from previous days.
+      </h2>
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -177,4 +153,6 @@ export function DataTableDemo() {
       </div>
     </div>
   );
-}
+};
+
+export default Page;

@@ -8,7 +8,6 @@ interface ActiveProcessTrackerProps {
 }
 
 const ActiveProcessTracker = ({ start_time, onDurationChange }: ActiveProcessTrackerProps) => {
-  const [duration, setDuration] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
 
   const { data: processStatus, refetch, isFetching } = useActiveProcess(start_time, true);
@@ -23,7 +22,6 @@ const ActiveProcessTracker = ({ start_time, onDurationChange }: ActiveProcessTra
     if (!isFinished) {
       const intervalId = setInterval(() => {
         const elapsedTime = Math.floor((Date.now() / 1000) - start_time);
-        setDuration(elapsedTime);
         onDurationChange(elapsedTime); // Duration değiştiğinde bildir
         refetch();
       }, 5000);

@@ -18,7 +18,7 @@ export interface DashboardOverviewCardProps {
   active?: boolean;
   onClick?: () => void;
   isLoading: boolean;
-  emptyMessage?: string | null;
+  showCard: boolean;
 }
 
 const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
@@ -26,7 +26,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
     appName,
     isLoading,
     onClick,
-    emptyMessage,
+    showCard,
     active,
     cardTitle,
     appIcon,
@@ -73,6 +73,7 @@ const DashboardOverviewCard = (props: DashboardOverviewCardProps) => {
       </CardHeader>
       <CardContent>
         <div className="flex space-x-2 items-center">
+          {!showCard && <span className="text-red-500">No data available</span>}
           {appIcon && <img src={appIcon} width={25} height={20}/>}
           {categoryIcon && <img src={categoryIcon} width={25} height={20}/>}
           <div className="flex flex-col space-y-1">

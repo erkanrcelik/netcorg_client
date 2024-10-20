@@ -1,4 +1,4 @@
-import {LayoutGrid, LucideIcon} from "lucide-react";
+import {Infinity, LayoutGrid, LucideIcon} from "lucide-react";
 
 type Submenu = {
   href: string;
@@ -27,8 +27,15 @@ export function getMenuList(pathname: string): Group[] {
         {
           href: "/",
           label: "Dashboard",
-          active: pathname.includes("/"),
+          active: pathname === "/",
           icon: LayoutGrid,
+          submenus: []
+        },
+        {
+          href: "/unfinished-process",
+          label: "Unfinished Process",
+          active: pathname.includes("/unfinished-process"),
+          icon: Infinity,
           submenus: []
         }
       ]

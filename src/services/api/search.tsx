@@ -3,9 +3,9 @@ import axios from "axios";
 import {SearchProcessRequest} from "@/services/types/search";
 
 
-export const useSearchProcess = (filters: SearchProcessRequest, onError?: any) => {
+export const useSearchProcess = (filters: SearchProcessRequest) => {
   const fetchInventory = async () => {
-    const params: Record<string, any> = {};
+    const params: Record<string, unknown> = {};
 
     if (filters.title) params.title = filters.title;
     if (filters.aname) params.aname = filters.aname;
@@ -24,7 +24,6 @@ export const useSearchProcess = (filters: SearchProcessRequest, onError?: any) =
   return useQuery({
     queryFn: fetchInventory,
     queryKey: ['searchProcess', filters], // Include filters in the queryKey for caching
-    throwOnError: onError,
     refetchOnWindowFocus: false,
   });
 };

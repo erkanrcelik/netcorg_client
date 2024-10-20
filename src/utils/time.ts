@@ -1,6 +1,8 @@
 export const epochToDate = (epoch: number): string => {
-  const date = new Date(epoch * 1000); // Epoch değeri saniye cinsinden olduğundan 1000 ile çarpıyoruz.
-  return date.toISOString().split('T')[0]; // Sadece tarih kısmını al
+  const date = new Date(epoch * 1000);
+  const formattedDate = date.toISOString().split('T')[0]; // Tarih kısmı
+  const formattedTime = date.toTimeString().split(' ')[0]; // Saat kısmı
+  return `${formattedDate} - ${formattedTime}`;
 };
 
 export const dateToEpoch = (date: Date): number => {

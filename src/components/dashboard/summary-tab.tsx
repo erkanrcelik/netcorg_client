@@ -22,8 +22,6 @@ const SummaryTab = () => {
   const [activeProcessFilters, setActiveProcessFilters] = useState(dateToEpoch(date));
   const [processFilters, setProcessFilters] = useState<ProcessRequest>(initialProcessFilters);
   const [topProcessFilters, setTopProcessFilters] = useState(dateToEpoch(date));
-  const [isFailure, setIsFailure] = useState<boolean>(false);
-  const onErrorFetch = () => setIsFailure(true);
 
   const {
     data: activeProcessData,
@@ -32,7 +30,6 @@ const SummaryTab = () => {
   } = useActiveProcess(
     activeProcessFilters,
     selectedTab.name === 'top_active_process',
-    onErrorFetch
   );
 
   const {
@@ -42,7 +39,6 @@ const SummaryTab = () => {
   } = useTopProcess(
     topProcessFilters,
     selectedTab.name === 'top_app_list',
-    onErrorFetch
   );
 
   const {
@@ -51,11 +47,8 @@ const SummaryTab = () => {
     isLoading: processIsLoading,
   } = useProcess(
     processFilters,
-    onErrorFetch
   );
-
-  console.log(processData)
-
+  
   useEffect(() => {
     setActiveProcessFilters(dateToEpoch(date));
     setTopProcessFilters(dateToEpoch(date));
@@ -93,24 +86,21 @@ const SummaryTab = () => {
       data: activeProcessData,
       isLoading: activeProcessIsLoading,
       title: summaryTabItems[0].title,
-      showCard: !!activeProcessData?.aname || activeProcessIsLoading,
-      emptyMessage: false
+      showCard: activeProcessData?.aname && !activeProcessIsLoading,
     },
     {
       key: summaryTabItems[1].name,
       data: topProcessData,
       isLoading: topProcessIsLoading,
       title: summaryTabItems[1].title,
-      showCard: !!topProcessData || topProcessIsLoading,
-      emptyMessage: !!topProcessData || topProcessIsLoading
+      showCard: topProcessData?.aname && !topProcessIsLoading,
     },
     {
       key: summaryTabItems[2].name,
       data: topProcessData,
       isLoading: topProcessIsLoading,
-      showCard: !!topProcessData || topProcessIsLoading,
       title: summaryTabItems[2].title,
-      emptyMessage: !!topProcessData || topProcessIsLoading
+      showCard: topProcessData?.aname && !topProcessIsLoading,
     }
   ];
 
@@ -161,7 +151,8 @@ const SummaryTab = () => {
               appName={card.data?.aname}
               pName={card.data?.pname}
               duration={tabItem.name === 'top_active_process' ? duration : card.data?.totalDuration}
-              appIcon={card.showCard && topProcessData ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png' : null}
+              appIcon={card.showCard ? 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e1/Google_Chrome_icon_%28February_2022%29.svg/1024px-Google_Chrome_icon_%28February_2022%29.svg.png' : null}
+              showCard={card.showCard}
             />
           ) : null;
         })}

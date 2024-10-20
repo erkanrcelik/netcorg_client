@@ -15,7 +15,7 @@ interface ProcessListProps {
 }
 
 export function ProcessList(props: ProcessListProps) {
-  const {items, total, name, offset, limit, onPageChange} = props;
+  const {items, total, name, onPageChange} = props;
   const [page, setPage] = useState(0);
 
 
@@ -141,7 +141,7 @@ export function ProcessList(props: ProcessListProps) {
           : (
             <>
               <tr>
-                <td colSpan={columns.length} className="py-2 px-4 text-center">
+                <td colSpan={columns.length} className="py-2 px-4 text-center text-red-500">
                   No data available
                 </td>
               </tr>
