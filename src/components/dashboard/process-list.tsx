@@ -18,6 +18,7 @@ export function ProcessList(props: ProcessListProps) {
   const {items, total, name, onPageChange} = props;
   const [page, setPage] = useState(0);
 
+  const pageCount = Math.ceil(total / props.limit);
 
   const [durations, setDurations] = useState<Record<string, number>>({});
   const [finishedStates, setFinishedStates] = useState<Record<string, boolean>>({});
@@ -163,12 +164,12 @@ export function ProcessList(props: ProcessListProps) {
               <Icons.chevronLeft color="white" size={15}/>
             </Button>
             <span>
-          Page {page + 1} of {total}
+          Page {page + 1} of {pageCount}
         </span>
             <Button
               onClick={handleNextPage}
               size={"sm"}
-              disabled={page === total}
+              disabled={page === pageCount - 1}
               className={`px-4 py-2 rounded ${page === total ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               <Icons.chevronRight color="white" size={15}/>
